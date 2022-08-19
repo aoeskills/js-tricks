@@ -84,3 +84,75 @@ export type ValueOfOptions<
   : Options extends Readonly<MaybeHaveValueOptionInUnion<infer Value>[]>
   ? Value | undefined
   : never;
+
+type TestOptionType = {
+  value?: string | number;
+  label?: string;
+  isDivider?: boolean;
+};
+type IsDividerOption = {
+  isDivider: boolean;
+};
+function testFunc<T extends Readonly<TestOptionType[]>>(
+  options: T,
+  onClick: (value: ValueOfOptions<T, IsDividerOption>) => void,
+) {
+  const filteredOptions = options.filter((opt) => 'isDivider' in opt);
+  const randomIndex = Math.floor(Math.random() * filteredOptions.length);
+  onClick(filteredOptions[randomIndex] as ValueOfOptions<T, IsDividerOption>);
+}
+
+const constOptions = [
+  { value: 'a' },
+  { value: 'b' },
+  { isDivider: false },
+] as const;
+const constOptionalValueOptions = [
+  { value: 'a' },
+  { value: 'b' },
+  { isDivider: false },
+  { label: 'a' },
+] as const;
+const stringOptions = [{ value: 'a' }, { isDivider: false }];
+const numberOptions = [{ value: 1 }, { isDivider: false }];
+const stringOptionalValueOptions = [
+  { value: 'a' },
+  { isDivider: false },
+  { label: 'def' },
+];
+const manyFieldOptions = [
+  {
+    value: 'a',
+    label: 'a',
+    className: 'abc',
+  },
+  {
+    value: 'b',
+    className: 'abc',
+  },
+  { isDivider: true },
+];
+testFunc(constOptions, function onClick(v) {
+  console.log(v);
+  // "a" | "b"
+});
+testFunc(constOptionalValueOptions, function onClick(v) {
+  console.log(v);
+  // "a" | "b" | undefined
+});
+testFunc(stringOptions, function onClick(v) {
+  console.log(v);
+  // string
+});
+testFunc(numberOptions, function onClick(v) {
+  console.log(v);
+  // number
+});
+testFunc(stringOptionalValueOptions, function onClick(v) {
+  console.log(v);
+  // string | undefined
+});
+testFunc(manyFieldOptions, function onClick(v) {
+  console.log(v);
+  // string
+});
